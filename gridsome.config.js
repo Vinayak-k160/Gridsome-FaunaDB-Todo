@@ -5,7 +5,7 @@
 // To restart press CTRL + C in terminal and run `gridsome develop`
 require('dotenv').config()
 module.exports = {
-  siteName: 'Gridsome',
+  siteName: 'Gridsome Faunadb Todo',
   chainWebpack: config => {
     config
       .plugin('env')
