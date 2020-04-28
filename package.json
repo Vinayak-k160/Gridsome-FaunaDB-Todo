@@ -1,0 +1,25 @@
+{
+  "name": "Grid-test",
+  "private": true,
+  "scripts": {
+    "build": "gridsome build",
+    "develop": "gridsome develop",
+    "explore": "gridsome explore"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.28",
+    "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@fortawesome/vue-fontawesome": "^0.1.9",
+    "animate.css": "^3.7.2",
+    "buefy": "^0.8.17",
+    "dotenv": "^8.2.0",
+    "faunadb": "^2.13.1",
+    "gridsome": "^0.7.0",
+    "v-animate-css": "0.0.3",
+    "vuesax": "^4.0.1-alpha.16",
+    "vuex": "^3.3.0"
+  },
+  "devDependencies": {
+    "gridsome-plugin-tailwind": "0.0.2"
+  }
+}
