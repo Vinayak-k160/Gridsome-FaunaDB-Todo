@@ -1,40 +1,49 @@
 <template>
-  <div>
-      <Navbar></Navbar>
-      <Todo></Todo>
+  <div class="p-2">
+    <div class="float-left">
+      <strong>{{ user.email }}</strong>
+    </div>
+    <div class="float-right">
+      <a class="button is-primary" @click="logout()">
+        <strong>Logout</strong>
+      </a>
+    </div>
+    <Todo></Todo>
   </div>
 </template>
 
 <script>
-import Todo from '@/components/Todo.vue'
-import Navbar from '@/components/Navbar.vue'
-const faunadb = require('faunadb')
-const client = new faunadb.Client({secret: process.env.VUE_APP_FAUNA_SECRET})
-const q = faunadb.query
+import Todo from "@/components/Todo.vue";
+const faunadb = require("faunadb");
+const client = new faunadb.Client({ secret: process.env.VUE_APP_FAUNA_SECRET });
+const q = faunadb.query;
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
-    Todo,
-    Navbar
+    Todo
   },
-  created() {
-    if(localStorage.getItem('token') == null || localStorage.getItem === undefined)
-    {
-      this.$router.push({path: '\login'})
-    }
-    else{
-      client.query(q.Get(q.Match(q.Index('user_token'), localStorage.getItem('token'))))
-      .then(res=> {
-        let data = res.data
-        data.id = res.ref.value.id
-        this.$store.state.user = data
-      })
-      .catch(err=>{
-        console.log(err.message)
-        localStorage.removeItem('token')
-        this.$router.push({path: '\login'})
-      })
+  computed: {
+    user() {
+      return this.$store.state.user;
     }
   },
-}
+  methods: {
+    logout() {
+      client.query(q.Logout(true)).then(res => {
+        client
+          .query(
+            q.Update(q.Ref(q.Collection("users"), this.$store.state.id), {
+              data: {
+                token: null
+              }
+            })
+          )
+          .then(res => {
+            localStorage.removeItem("token");
+            this.$router.push({ path: "/login" });
+          });
+      });
+    }
+  }
+};
 </script>
