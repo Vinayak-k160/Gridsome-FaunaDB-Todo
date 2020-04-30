@@ -44,7 +44,7 @@
             />
           </div>
 
-          <div class="flex flex-col pt-4">
+          <div class="flex flex-col pt-4 mb-4">
             <label for="confirm-password" class="text-lg">Confirm Password</label>
             <input
               v-model="confirm_password"
@@ -55,12 +55,20 @@
             />
           </div>
 
-          <input
+          <vs-button
+            dark
+            square
+            flat
+            size="large"
+            style="width: 100%; margin: 0px;"
+            color="#000"
+            :disabled="isLoading"
+            :active="active == 0"
             @click="register()"
-            type="submit"
-            value="Register"
-            class="bg-black text-white font-bold text-lg hover:bg-gray-700 p-2 mt-8"
-          />
+            ref="button"
+          >
+            <b>Register</b>
+          </vs-button>
         </form>
         <div class="text-center pt-12 pb-12">
           <p>
@@ -92,14 +100,67 @@ export default {
         email: ""
       },
       password: "",
-      confirm_password: ""
+      confirm_password: "",
+      isLoading: false,
+      active: 0,
+      loading: ""
     };
   },
   methods: {
     register() {
-      if (this.password != this.confirm_password)
-        return alert("passswords do not match");
-      client
+      this.startLoading();
+      if( this.user.name == null || this.user.name == ''){
+        this.closeLoding();
+        this.$buefy.snackbar.open({
+              message: "Name is required",
+              type: "is-warning",
+              position: "is-top",
+              indefinite: false
+            });
+            return;
+      }
+      if( this.user.email == null || this.user.email == ''){
+        this.closeLoding();
+        this.$buefy.snackbar.open({
+              message: "Email is required",
+              type: "is-warning",
+              position: "is-top",
+              indefinite: false
+            });
+      return;
+      }
+      if( this.password == null || this.password == ''){
+        this.closeLoding();
+        this.$buefy.snackbar.open({
+              message: "Password is required",
+              type: "is-warning",
+              position: "is-top",
+              indefinite: false
+            });
+      return;
+      }
+      if( this.confirm_password == null || this.confirm_password == ''){
+        this.closeLoding();
+        this.$buefy.snackbar.open({
+              message: "Confirm password is required",
+              type: "is-warning",
+              position: "is-top",
+              indefinite: false
+            });
+      return;
+      }
+      if (this.password != this.confirm_password){
+        this.closeLoding();
+         this.$buefy.snackbar.open({
+              message: "Passwords do not match",
+              type: "is-warning",
+              position: "is-top",
+              indefinite: false
+            });
+        this.closeLoding();
+      } 
+      else{
+        client
         .query(
           q.Create(q.Collection("users"), {
             credentials: { password: this.password },
@@ -107,9 +168,28 @@ export default {
           })
         )
         .then(res => {
+          this.closeLoding();
           this.$router.push({ path: "/login" });
-        });
+        })
+        .catch(err =>{
+          this.closeLoding();
+        })
+      }
+    },
+    startLoading() {
+      this.isLoading = true;
+      this.loading = this.$vs.loading({
+        target: this.$refs.button,
+        scale: "0.6",
+        background: "#000",
+        opacity: 1,
+        color: "#fff"
+      });
+    },
+    closeLoding() {
+      this.isLoading = false;
+      this.loading.close();
     }
-  }
+  },
 };
 </script>

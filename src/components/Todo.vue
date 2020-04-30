@@ -3,19 +3,20 @@
     <h1 class="subtitle is-1 text-center">@toDo</h1>
     <div class="columns">
       <div class="column is-three-fifths is-offset-one-fifth">
-        <div class="columns is-gapless">
-          <div class="column is-four-fifths">
-            <b-field class="pt-2">
-              <b-input placeholder="Todo..." type="input" v-model="todoname"></b-input>
-            </b-field>
-          </div>
-          <div class="column">
-            <div class="pt-2">
-              <button @click="addTodo()" class="button is-primary is-light is-fullwidth">Add</button>
+        <form onsubmit="event.preventDefault();">
+          <div class="columns is-gapless">
+            <div class="column is-four-fifths">
+              <b-field class="pt-2">
+                <b-input placeholder="Todo..." type="input" v-model="todoname"></b-input>
+              </b-field>
+            </div>
+            <div class="column">
+              <div class="pt-2">
+                <button @click="addTodo()" class="button is-primary is-light is-fullwidth">Add</button>
+              </div>
             </div>
           </div>
-        </div>
-
+        </form>
         <b-tabs v-model="activeTab">
           <b-tab-item label="All">
             <div v-for="(todo, index) in todos" :key="index">
@@ -34,10 +35,13 @@
                   </vs-checkbox>
                 </div>
                 <div>
-                  <i
-                    class="fas fa-trash-alt cursor-pointer"
+                  <span
+                    class="text-red-400 cursor-pointer"
                     @click="trash(todos[index].ref.value.id, todos[index].data.trashed == false ? true : false, index)"
-                  ></i>
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                    Trash
+                  </span>
                 </div>
               </div>
             </div>
@@ -60,10 +64,13 @@
                   </vs-checkbox>
                 </div>
                 <div>
-                  <i
-                    class="fas fa-trash-alt cursor-pointer"
+                  <span
+                    class="text-red-400 cursor-pointer"
                     @click="trash(todos[index].ref.value.id, todos[index].data.trashed == false ? true : false, index)"
-                  ></i>
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                    Trash
+                  </span>
                 </div>
               </div>
             </div>
@@ -80,11 +87,19 @@
                   >{{todos[index].data.name}}</span>
                 </div>
                 <div>
-                  <font-awesome-icon
-                    class="cursor-pointer"
-                    icon="trash-restore-alt"
+                  <span
+                    class="pr-3 text-blue-400 cursor-pointer"
                     @click="trash(todos[index].ref.value.id, todos[index].data.trashed == false ? true : false, index)"
-                  />
+                  >
+                    <font-awesome-icon class="mr-1" icon="trash-restore-alt" />Retore
+                  </span>
+                  <span
+                    class="text-red-400 cursor-pointer"
+                    @click="delete_permanent(todos[index].ref.value.id, index)"
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                    Delete
+                  </span>
                 </div>
               </div>
             </div>
@@ -144,6 +159,7 @@ export default {
             });
             client.query(data).then(res => {
               this.todo_data = res;
+              this.todo_data.reverse()
             });
           });
       });
@@ -161,18 +177,17 @@ export default {
           .query(
             q.Create(q.Collection("todo"), {
               data: {
-                // somet: this.todoName,
                 name: this.todoname,
                 completed: false,
                 trashed: false,
                 user_id: this.$store.state.id,
-                date: "sdsdsdsd"
+                date: Date.now()
               }
             })
           )
           .then(res => {
             this.todoname = "";
-            this.todo_data.push(res);
+            this.todo_data.unshift(res);
           });
       }
     },
@@ -198,6 +213,10 @@ export default {
           })
         )
         .then(res => {});
+    },
+    delete_permanent(id, index) {
+      this.todo_data.splice(index, 1);
+      client.query(q.Delete(q.Ref(q.Collection("todo"), id))).then(res => {});
     }
   }
 };

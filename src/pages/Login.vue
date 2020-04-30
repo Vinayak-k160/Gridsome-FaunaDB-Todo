@@ -22,7 +22,7 @@
             />
           </div>
 
-          <div class="flex flex-col pt-4">
+          <div class="flex flex-col pt-4 mb-4">
             <label for="password" class="text-lg">Password</label>
             <input
               v-model="user.password"
@@ -33,12 +33,20 @@
             />
           </div>
 
-          <input
+          <vs-button
+            dark
+            square
+            flat
+            size="large"
+            style="width: 100%; margin: 0px;"
+            color="#000"
+            :disabled="isLoading"
+            :active="active == 0"
             @click="login()"
-            type="submit"
-            value="Log In"
-            class="bg-black text-white font-bold text-lg hover:bg-gray-700 p-2 mt-8"
-          />
+            ref="button"
+          >
+            <b>Log In</b>
+          </vs-button>
         </form>
         <div class="text-center pt-12 pb-12">
           <p>
@@ -69,37 +77,81 @@ export default {
         email: "",
         password: ""
       },
-      token: ""
+      token: "",
+      isLoading: false,
+      active: 0,
+      loading: ""
     };
+  },
+  created() {
+    // this.openLoadingButton()
   },
   methods: {
     login() {
-      client
-        .query(
-          q.Login(q.Match(q.Index("user_by_email"), this.user.email), {
-            password: this.user.password
-          })
-        )
-        .then(res => {
-          this.token = res.secret;
-          if (this.token != null) {
-            localStorage.setItem("token", this.token);
-            client
-              .query(
-                q.Update(q.Ref(q.Collection("users"), res.instance.value.id), {
-                  data: {
-                    token: this.token
-                  }
-                })
-              )
-              .then(res => {
-                let data = res.data;
-                this.$store.commit("setUser", data);
-                this.$store.commit("setUserId", res.ref.value.id);
-                this.$router.push({ path: "/" });
-              });
-          }
+      this.startLoading();
+      if (this.user.email == null || this.user.password == "") {
+        this.$buefy.snackbar.open({
+          message: "Email and Password reqiured!",
+          type: "is-warning",
+          position: "is-top",
+          indefinite: false
         });
+        this.closeLoding();
+      } else {
+        client
+          .query(
+            q.Login(q.Match(q.Index("user_by_email"), this.user.email), {
+              password: this.user.password
+            })
+          )
+          .then(res => {
+            this.token = res.secret;
+            if (this.token != null) {
+              localStorage.setItem("token", this.token);
+              client
+                .query(
+                  q.Update(
+                    q.Ref(q.Collection("users"), res.instance.value.id),
+                    {
+                      data: {
+                        token: this.token
+                      }
+                    }
+                  )
+                )
+                .then(res => {
+                  this.closeLoding();
+                  let data = res.data;
+                  this.$store.commit("setUser", data);
+                  this.$store.commit("setUserId", res.ref.value.id);
+                  this.$router.push({ path: "/" });
+                });
+            }
+          })
+          .catch(err => {
+            this.$buefy.snackbar.open({
+              message: "Email or password is incorrect.",
+              type: "is-warning",
+              position: "is-top",
+              indefinite: false
+            });
+            this.closeLoding();
+          });
+      }
+    },
+    startLoading() {
+      this.isLoading = true;
+      this.loading = this.$vs.loading({
+        target: this.$refs.button,
+        scale: "0.6",
+        background: "#000",
+        opacity: 1,
+        color: "#fff"
+      });
+    },
+    closeLoding() {
+      this.isLoading = false;
+      this.loading.close();
     }
   }
 };
