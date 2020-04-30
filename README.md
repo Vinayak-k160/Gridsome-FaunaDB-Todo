@@ -14,4 +14,4 @@ This is the project you get when you run `gridsome create new-project`.
 4. Happy coding 🎉🙌
 
 
-!(https://github.com/Vinayak-k160/Gridsome-FaunaDB-Todo/blob/master/Untitled2.png)
+![Alt Text](https://raw.githubusercontent.com/Vinayak-k160/Gridsome-FaunaDB-Todo/master/Untitled2.png)
