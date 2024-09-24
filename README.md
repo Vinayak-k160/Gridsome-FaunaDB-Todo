@@ -2,6 +2,7 @@
 
 This is the project you get when you run `gridsome create new-project`.
 
+
 ### 1. Install Gridsome CLI tool if you don't have
 
 `npm install --global @gridsome/cli`
@@ -15,3 +16,6 @@ This is the project you get when you run `gridsome create new-project`.
 
 
 ![Alt Text](https://raw.githubusercontent.com/Vinayak-k160/Gridsome-FaunaDB-Todo/master/Untitled2.png)
+
+
+You can also refer blog: https://dev.to/vinayak-k160/gridsome-faunadb-todo-app-24kb
